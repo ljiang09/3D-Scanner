@@ -6,8 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Readings taken at 4 inch intervals starting at 8 inches
-distances = np.array(range(8, 45, 4))
-readings = np.array([490, 385, 300, 240, 210, 185, 170, 157, 153, 145])
+DISTANCES = np.array(range(8, 45, 4))
+READINGS = np.array([490, 385, 300, 240, 210, 185, 170, 157, 153, 145])
+
 
 def generate_calibration_plot(distances, readings):
     """
@@ -15,9 +16,9 @@ def generate_calibration_plot(distances, readings):
     calibration plot is created
 
     Args:
-        distances: An numpy array representing the distances from where readings were taken in 
+        distances: An numpy array representing the distances from where readings were taken in
             inches
-        readings: A numpy array representing the readings from the arduino (0 to 5V mapped to 
+        readings: A numpy array representing the readings from the arduino (0 to 5V mapped to
             integers0 to 1023)
 
     Returns:
@@ -30,7 +31,6 @@ def generate_calibration_plot(distances, readings):
     inv_distances_cm = np.ones(len(readings_volt))/distances_cm
 
     # Plot reading against 1/distance
-    plt.clf
     plt.plot(inv_distances_cm, readings_volt, 'o')
     plt.xlabel("Distance (cm)")
     plt.ylabel("IR Sensor Reading (V)")
@@ -46,4 +46,4 @@ def generate_calibration_plot(distances, readings):
     plt.legend("Collected Data", "Fitted Line")
     plt.show()
 
-generate_calibration_plot(distances, readings)
+generate_calibration_plot(DISTANCES, READINGS)
