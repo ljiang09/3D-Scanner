@@ -10,6 +10,9 @@ from scipy.optimize import curve_fit
 DISTANCES = np.array(range(8, 45, 4))
 READINGS = np.array([490, 385, 300, 240, 210, 185, 170, 157, 153, 145])
 
+TEST_DATA = np.array([[30, 40, 27, 66.04, 53.34, 73.66], [390, 307, 415, 196, 240, 193]])
+print(TEST_DATA[0])
+
 def exponential(x, a, b, c):
     """
     """
@@ -25,6 +28,9 @@ def generate_calibration_plot(distances, readings):
             inches
         readings: A numpy array representing the readings from the arduino (0 to 5V mapped to
             integers 0 to 1023)
+
+    Return:
+        params: TODO: WRITE THIS IN
     """
     # Convert to correct units
     distances_cm = 2.54 * distances
@@ -46,4 +52,18 @@ def generate_calibration_plot(distances, readings):
     plt.legend()
     plt.show()
 
-generate_calibration_plot(DISTANCES, READINGS)
+    return param
+
+def test_calibration_curve(distances_cm, param, test_data):
+    """
+    """
+    readings_volt = test_data[1] * 5 / 1023
+
+    plt.clf
+    plt.plot(test_data[0], exponential(test_data[0], *param), 'o')
+    plt.plot(test_data[0], readings_volt, 'go')
+    plt.show()
+
+
+param = generate_calibration_plot(DISTANCES, READINGS)
+test_calibration_curve(DISTANCES * 2.54, param, TEST_DATA)
