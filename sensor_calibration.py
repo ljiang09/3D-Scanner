@@ -1,7 +1,6 @@
 """
 Calibration for IR Sensor
 """
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
@@ -10,11 +9,12 @@ from scipy.optimize import curve_fit
 DISTANCES = np.array(range(8, 45, 4))
 READINGS = np.array([490, 385, 300, 240, 210, 185, 170, 157, 153, 145])
 
+# Readings taken at distances (cm) specified in 
 TEST_DATA = np.array([[30, 40, 27, 66.04, 53.34, 73.66], [390, 307, 415, 196, 240, 193]])
-print(TEST_DATA[0])
 
 def exponential(x, a, b, c):
     """
+    TODO:
     """
     return (a * np.exp((b * x))) + c
 
@@ -56,14 +56,23 @@ def generate_calibration_plot(distances, readings):
 
 def test_calibration_curve(distances_cm, param, test_data):
     """
+    TODO: 
     """
     readings_volt = test_data[1] * 5 / 1023
 
     plt.clf
-    plt.plot(test_data[0], exponential(test_data[0], *param), 'o')
-    plt.plot(test_data[0], readings_volt, 'go')
+    plt.plot(test_data[0], exponential(test_data[0], *param), 'o', label="Predicted Data")
+    plt.plot(test_data[0], readings_volt, 'go', label="Collected Data")
+    plt.xlabel("Distance (cm)")
+    plt.ylabel("IR Sensor Reading (V)")
+    plt.legend()
+    plt.title("Actual vs Predicted Distances for IR Sensor Readings")
     plt.show()
 
-
-param = generate_calibration_plot(DISTANCES, READINGS)
-test_calibration_curve(DISTANCES * 2.54, param, TEST_DATA)
+def run_calibration():
+    """
+    TODO:
+    """
+    params = generate_calibration_plot(DISTANCES, READINGS)
+    test_calibration_curve(DISTANCES * 2.54, params, TEST_DATA)
+    return params
