@@ -33,12 +33,12 @@ void setup()
 
 void loop()
 {
-    for (pos1 = 0; pos1 <= 20; pos1 += servo1Increment) {   // in steps of 1 degree, tell servo1 to go to position in variable 'pos1'
+    for (pos1 = 0; pos1 <= 180; pos1 += servo1Increment) {   // in steps of 1 degree, tell servo1 to go to position in variable 'pos1'
         servo1.write(pos1);
 
         // goes from 0 degrees to 180 degrees
         if (positiveRotation) {
-            for (pos2 = 0; pos2 <= 20; pos2 += servo2Increment) {
+            for (pos2 = 0; pos2 <= 180; pos2 += servo2Increment) {
                 servo2.write(pos2);
                 sensorValue = analogRead(sensorPin);
                 Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
@@ -48,7 +48,7 @@ void loop()
 
         // goes from 180 degrees to 0 degrees
         else {
-            for (pos2 = 20; pos2 >= 0; pos2 -= servo2Increment) {
+            for (pos2 = 180; pos2 >= 0; pos2 -= servo2Increment) {
                 servo2.write(pos2);
                 sensorValue = analogRead(sensorPin);
                 Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
