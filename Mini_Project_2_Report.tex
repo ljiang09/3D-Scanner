@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+
+\title{PIE Mini Project 2}
+\author{Lily Jiang, Rucha Dave, Jacob Prisament}
+\date{September 29, 2022}
+
+\begin{document}
+
+\maketitle
+
+\section{Objectives}
+    The goal for Mini Project 2 is to build a basic 3D scanner with a pan/tilt mechanism, and program it with an Arduino. This scanner will scan a cardboard letter (of which the geometry is known), and this data will then be visualized using \_\_\_\_\_.
+
+
+\section{Testing the parts}
+Before delving into anything, each of the parts needed to be tested for functionality.
+
+    \subsection{Motors:}
+    We used the Tiankongrc MG996R servo motors. \\
+    \\
+    The Arduino IDE comes with an example called “Sweep”, which causes a servo to rotate back and forth. This checks to make sure the motor responds to commands properly, and actually rotates a full 180 degrees.
+
+    \subsection{Sensor:}
+    We used the Sharp GP2Y0A02YK0F IR distance sensor. \\
+    \\
+    The Arduino IDE comes with an example called "AnalogInput", which we used to test that the sensor readings changed with distance as expected. \\
+    \textbf{TODO: A description of the process you used to test your sensor.}
+
+\section{Calibration}
+    Before using the sensor, we needed to calibrate the values read in by the Arduino. The Arduino read in integer values in the hundreds, but we didn't know how those values corresponded to physical distances. \\
+    \\
+    To find this relation (AKA calibrate the sensor), we took 10 distance readings. We made sure to stay within the distance range that the sensor's \href{https://www.sparkfun.com/datasheets/Sensors/Infrared/gp2y0a02yk_e.pdf}{spec sheet} recommended, which was 20-150 cm.
+    
+    \begin{center}
+    \begin{tabular}{ |c|c| } 
+     \hline
+     Distance (inches) & Arduino Reading \\
+     \hline
+     8 & 490 \\
+     12 & 385 \\ 
+     16 & 300 \\
+     20 & 240 \\
+     24 & 210 \\
+     28 & 185 \\
+     32 & 170 \\
+     36 & 157 \\
+     40 & 153 \\
+     44 & 145 \\
+     \hline
+    \end{tabular}
+    \end{center}
+    Table 1: Arduino readings and distances
+
+    
+    \textbf{TODO: A calibration plot depicting analog voltage reading vs. actual distance.} \\
+    \textbf{TODO: An error plot showing predicted distance and actual distance for distances not included in your calibration routine.} \\
+    \textbf{TODO: An explanation of your calibration function}
+
+\section{1-Servo Scan}
+    \textbf{TODO: images of the setup, labeled. Make sure to have a top view} \\
+    \textbf{TODO: Data gathered from the image of 1 servo scan} \\
+    
+    \section{2-Servo Scan}
+    \textbf{TODO: An image of your setup for the 2 servo apparatus} \\
+    \textbf{TODO: visualization of the 3D data resulting from your scan (a plot, an image, a video, etc)}
+
+\section{Reflection}
+\textbf{TODO: An explanation of and reflection on your design (including software, electrical and mechanical parts). What worked well and what could be improved?}
+
+\section{Source Code}
+\textbf{TODO: All source code}
+
+
+\end{document}
