@@ -41,7 +41,7 @@ void loop()
             for (pos2 = 0; pos2 <= 20; pos2 += servo2Increment) {
                 servo2.write(pos2);
                 sensorValue = analogRead(sensorPin);
-                Serial.println(sensorValue);
+                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
                 delay(15);
             }
         }
@@ -51,7 +51,7 @@ void loop()
             for (pos2 = 20; pos2 >= 0; pos2 -= servo2Increment) {
                 servo2.write(pos2);
                 sensorValue = analogRead(sensorPin);
-                Serial.println(sensorValue);
+                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
                 delay(15);
             }
         }
