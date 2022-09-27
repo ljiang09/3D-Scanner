@@ -14,7 +14,7 @@ serial_port = serial.Serial(arduino_com_port, baud_rate, timeout=10)
 params = calibrate.run_calibration()
 
 # Fetch data until STOP command given
-sensor_volt, positions = prd.fetch_data(serial_port, get_data=True, params=params)
+sensor_volt, positions, radii = prd.fetch_data(serial_port, get_data=True, params=params)
 
 # Generate image of object
-prd.plot_heatmap(positions)
+prd.plot_heatmap(positions, radii)
