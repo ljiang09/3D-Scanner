@@ -1,5 +1,6 @@
 
 // servo 1 controls the vertical movement, servo 2 controls the horizontal movement
+// each servo has a predefined 0 angle. the servo is "centered" at 90 degrees
 #include <Servo.h>
 Servo servo1;
 Servo servo2;
@@ -22,6 +23,12 @@ int pos2 = 0;
 const int servo1Increment = 4;
 const int servo2Increment = 1;
 
+// range of motion for each servo
+const int servo1Start = 0;
+const int servo1End = 180;
+const int servo2Start = 0;
+const int servo2End = 180;
+
 
 void setup()
 {
@@ -33,30 +40,40 @@ void setup()
 
 void loop()
 {
-    for (pos1 = 0; pos1 <= 180; pos1 += servo1Increment) {   // in steps of 1 degree, tell servo1 to go to position in variable 'pos1'
-        servo1.write(pos1);
-
-        // goes from 0 degrees to 180 degrees
-        if (positiveRotation) {
-            for (pos2 = 0; pos2 <= 180; pos2 += servo2Increment) {
-                servo2.write(pos2);
-                sensorValue = analogRead(sensorPin);
-                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
-                delay(15);
-            }
-        }
-
-        // goes from 180 degrees to 0 degrees
-        else {
-            for (pos2 = 180; pos2 >= 0; pos2 -= servo2Increment) {
-                servo2.write(pos2);
-                sensorValue = analogRead(sensorPin);
-                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
-                delay(15);
-            }
-        }
-
-        delay(400);
-    }
+    servo1.write(90);
+    
+//    for (pos1 = servo1Start; pos1 <= servo1End; pos1 += servo1Increment) {   // in steps of 1 degree, tell servo1 to go to position in variable 'pos1'
+//        servo1.write(pos1);
+//
+//        // goes from 0 degrees to 180 degrees
+//        if (positiveRotation) {
+//            for (pos2 = servo2Start; pos2 <= servo2End; pos2 += servo2Increment) {
+//                servo2.write(pos2);
+//                sensorValue = analogRead(sensorPin);
+//                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
+//                delay(15);
+//
+//                if (pos2 == servo2End) {
+//                    positiveRotation = false;
+//                }
+//            }
+//        }
+//
+//        // goes from 180 degrees to 0 degrees
+//        else {
+//            for (pos2 = servo2End; pos2 >= servo2Start; pos2 -= servo2Increment) {
+//                servo2.write(pos2);
+//                sensorValue = analogRead(sensorPin);
+//                Serial.println(sensorValue + "," + String(pos2) + "," + String(pos1));
+//                delay(15);
+//
+//                if (pos2 == servo2Start) {
+//                    positiveRotation = true;
+//                }
+//            }
+//        }
+//
+//        delay(400);
+//    }
     
 }
