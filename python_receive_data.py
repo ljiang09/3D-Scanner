@@ -39,8 +39,8 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
   **Z is plane that the servo is on (Z-distance is distance between servo and letter)
   Center at 90 degrees for x sweep servo and 90 for y sweep servo
   """
-  x_degrees = np.array(position_degrees[0])
-  y_degrees = np.array(position_degrees[1])
+  pan_degrees = np.array(position_degrees[0])
+  tilt_degrees = np.array(position_degrees[1])
 
   # Data to distances
   radii = calibrate.exponential(sensor_volt, *params)
@@ -52,14 +52,15 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
   positions = [[], [], []]
 
   for index in len(x_degrees):
-    # Convert degrees to radians
-    x_radian = np.radians(x_degrees[index])
-    y_radian = np.radians(y_degrees[index])
 
-    # Convert polar to cartesian
-    x, y, z = (radii[index] * np.sin(x_radian), radii[index] * np.sin(y_radian), radii[index], 
-      radii[index] * np.cos(x_radian))
-    # Here, radii * np.cos(x_radian) should == radii * np.cos(y_radian) ** TODO:TEST THIS
+    # Convert degrees to radians
+    pan_radian = np.radians(x_degrees[index])
+    tilt_radian = np.radians(y_degrees[index])
+
+    # Convert spherical to cartesian
+    y = radii[index] * np.sin(tilt_radian)
+    x = radii[index] * np.cos(tilt_radian) * np.cos(pan_radian)
+    z = radii[index] * np.cos(tilt_radian) * np.sin(pan_radian)
 
     positions[0].append(x)
     positions[1].append(y)
@@ -67,17 +68,12 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
   
   return np.array(positions)
 
-def plot_heatmap(params, positions):
+def plot_heatmap(positions):
   """
   TODO:
   """
-  plt.clf
-  
-  # Map data to 0 or 1 scale based on distance and plot
-  for index in len(positions[2]):
-    if positions[2][index] < 60.0:
-      plt.plot(positions[0], positions[1])
-  
+  plt.clf 
+  plt.scatter(positions[0], positions[1], positions[2])
   plt.show()
   plt.title("Heatmap of Distances")
   
