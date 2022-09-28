@@ -14,19 +14,16 @@ def fetch_data(serial_port, get_data, params):
     Listens for and gathers data from the Arduino scanner.
 
     Args:
-        serial_port: A serial port object representing the port associated with
-            the Arduino.
-    get_data: A bool representing whether data from the Arduino should be
-        gathered at the moment.
-    params: A float array representing the coefficients and transformations
-        that define the sensor's calibration curve.
+        serial_port: A serial port object representing the port associated with the Arduino
+        get_data: A bool representing whether data from the Arduino should be gathered at the moment
+        params: A float array representing the coefficients and transformations that define the
+            sensor's calibration curve.
 
       Returns:
-          sensor_volt: The voltages read in by the IR sensor.
-          positions: A 3 row array representing the x, y, and z values (respectively)
-            calculated for each of the values the sensor reads in.
-          radii: The distances measured by the IR sensor (calculated using the
-            calibration curve).
+        sensor_volt: The voltages read in by the IR sensor.
+        positions: A 3 row array representing the x, y, and z values (respectively) calculated for
+            each of the values the sensor reads in.
+        radii: The distances measured by the IR sensor (calculated using the calibration curve).
       """
     sensor_volt = []
     position_degrees = [[], []]
@@ -83,16 +80,14 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
 
     Args:
         sensor_volt: The voltages read in by the IR sensor.
-        position_degrees: A 2-row array representing the pan and tilt angles
-            (respectively).
-        params: A float array representing the coefficients and transformations
-            that define the sensor's calibration curve.
+        position_degrees: A 2-row array representing the pan and tilt angles (respectively)
+        params: A float array representing the coefficients and transformations that define the
+            sensor's calibration curve.
 
     Returns:
-        np.array(positions): A 3-row array representing the x, y, and z values
-            (respectively) calculated for each of the values the sensor reads in.
-        radii: The distances measured by the IR sensor (calculated using the
-            calibration curve).
+        np.array(positions): A 3-row array representing the x, y, and z values (respectively)
+            calculated for each of the values the sensor reads in.
+        radii: The distances measured by the IR sensor (calculated using the calibration curve).
     """
     pan_degrees = np.array(position_degrees[0])
     tilt_degrees = np.array(position_degrees[1])
@@ -132,28 +127,35 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
 
 def plot_single_sweep(position_degrees, sensor_volt, params):
     """
-    TODO:
+    Plots a single sweep of scanned datapoints in one dimension (angle of pan from center vs radial
+    distance created)
+
+    Args:
+        positions_degrees: A 2-row array representing the pan and tilt angles (respectively)
+        sensor_volt: The voltages read in by the IR sensor.
+        params: A float array representing the coefficients and transformations that define the
+            sensor's calibration curve.
     """
     pan_degrees = np.array(position_degrees[0])
-    pan_degrees -= 30 # phi
+    pan_degrees -= 30 # Center pan degrees at 0
 
     # Convert sensor data to distances
     radii = calibrate.inv_exponential(sensor_volt, *params)
+
+    # Plot data
     plt.plot(pan_degrees, radii)
     plt.xlabel("Angular Pan from Center (Degrees)")
     plt.ylabel("Distance Value Detected (cm)")
     plt.title("Single Pan Distances over Angles")
     plt.show()
 
-
-
 def plot_heatmap(positions):
     """
     Plots the scanned datapoints in the Cartesian system.
 
     Args:
-        positions: A 3 row array representing the x, y, and z values (respectively)
-            calculated for each of the values the sensor reads in.
+        positions: A 3 row array representing the x, y, and z values (respectively) calculated for
+            each of the values the sensor reads in.
     """
     fig = plt.figure()
     ax = plt.axes(projection='3d')
