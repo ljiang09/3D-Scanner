@@ -77,9 +77,9 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
   Converts pan/tilt angles to Cartesian coordinates.
 
   Notes: 
-    Z is plane that the servo is on (Z-distance is distance between servo and
-        the letter).
-    Center at 90 degrees for x sweep servo and 90 for y sweep servo.
+  XYZ axes: Given that the sensor is facing the object, the X axis points to the right of the
+  object, the Z axis points upwards from the object (towards the ceiling) and the Y axis points
+  towards the sensor, fulfilling the right-hand rule
 
   Args:
     sensor_volt: The voltages read in by the IR sensor.
@@ -140,7 +140,6 @@ def plot_heatmap(positions):
   """
   fig = plt.figure()
   ax = plt.axes(projection ='3d')
-  # ax.scatter(positions[0], positions[1], positions[2], 'green')
   ax.scatter3D(positions[0], positions[1], positions[2])
   ax.set_xlabel("X")
   ax.set_ylabel("Y")
