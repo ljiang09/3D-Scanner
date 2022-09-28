@@ -1,5 +1,6 @@
 """
-TODO:
+Listens for data from the Arduino scanner, generates a 3D visualization of
+the scanned object.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,16 +12,30 @@ import sensor_calibration as calibrate
 
 def fetch_data(serial_port, get_data, params):
   """
-  TODO: 
+  Listens for and gathers data from the Arduino scanner.
+  Args:
+    serial_port: A serial port object representing the port associated with
+        the Arduino.
+    get_data: A bool representing whether data from the Arduino should be
+        gathered at the moment.
+    params: A float array representing the coefficients and transformations
+        that define the sensor's calibration curve.
+  Returns:
+    sensor_volt: The voltages read in by the IR sensor.
+    positions: A 3 row array representing the x, y, and z values (respectively)
+        calculated for each of the values the sensor reads in.
+    radii: The distances measured by the IR sensor (calculated using the
+        calibration curve).
   """
   sensor_volt = []
   position_degrees = [[], []]
 
+  # open a csv file to write into
   f = open("recording_data2.csv", "w")
   writer = csv.writer(f)
   writer.writerow(["value", "pan_degree", "tilt_degree"])
 
-  # Fetch data
+  # Fetch data from Arduino
   while get_data:
     data_line = serial_port.readline()
 
@@ -57,17 +72,30 @@ def fetch_data(serial_port, get_data, params):
 
 def angle_to_coordinates(sensor_volt, position_degrees, params):
   """
-  TODO:
-  **Z is plane that the servo is on (Z-distance is distance between servo and letter)
-  Center at 90 degrees for x sweep servo and 90 for y sweep servo
+  Converts pan/tilt angles to Cartesian coordinates.
+  Notes: 
+    Z is plane that the servo is on (Z-distance is distance between servo and
+        the letter).
+    Center at 90 degrees for x sweep servo and 90 for y sweep servo.
+  Args:
+    sensor_volt: The voltages read in by the IR sensor.
+    position_degrees: A 2-row array representing the pan and tilt angles
+        (respectively).
+    params: A float array representing the coefficients and transformations
+        that define the sensor's calibration curve.
+  Returns:
+    np.array(positions): A 3-row array representing the x, y, and z values
+        (respectively) calculated for each of the values the sensor reads in.
+    radii: The distances measured by the IR sensor (calculated using the
+        calibration curve).
   """
   pan_degrees = np.array(position_degrees[0])
   tilt_degrees = np.array(position_degrees[1])
 
-  # Data to distances
+  # Convert sensor data to distances
   radii = calibrate.inv_exponential(sensor_volt, *params)
 
-  # # Center the angles so that 90 degrees is 0 (At '90 degrees', new 0, distance = radius) for x + y
+  # Center the angles so that 90 degrees is 0 (At '90 degrees', new 0, distance = radius) for x + y
   pan_degrees -= 30 # phi
   tilt_degrees -= 10 # theta
 
@@ -144,7 +172,10 @@ def filter_data(positions):
 
 def plot_heatmap(positions):
   """
-  TODO:
+  Plots the scanned datapoints in the Cartesian system.
+  Args:
+    positions: A 3 row array representing the x, y, and z values (respectively)
+        calculated for each of the values the sensor reads in.
   """
   fig = plt.figure()
   ax = plt.axes(projection ='3d')
