@@ -111,7 +111,7 @@ def test_calibration_curve(param, test_data):
     plt.xlabel("Distance (cm)")
     plt.ylabel("IR Sensor Reading (V)")
     plt.legend()
-    plt.title("Actual vs Predicted IR Sensor Readings")
+    plt.title("Actual vs Predicted Distances")
     plt.show()
 
 def run_calibration():
