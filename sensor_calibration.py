@@ -11,7 +11,7 @@ DISTANCES = np.array(
 READINGS = np.array(
     [500, 470, 410, 395, 345, 315, 286, 255, 240, 210, 195, 180, 170, 160, 120, 95, 85, 80, 75])
 
-# Readings taken at distances (cm) specified in 
+# Readings taken at distances (cm) specified in
 TEST_DATA = np.array([[30, 38, 43, 53, 66, 73], [400, 330, 298, 230, 180, 160]])
 
 def exponential(x, a, b, c):
@@ -25,7 +25,7 @@ def exponential(x, a, b, c):
         a: A float representing the parameter 'a' in the equation above
         b: A float representing the parameter 'b' in the equation above
         c: A float representing the parameter 'c' in the equation above
-    
+
     Returns:
         A float representing the resulting voltage from the equation with inputs entered
     """
@@ -43,10 +43,10 @@ def inv_exponential(v, a, b, c):
         b: A float representing the parameter 'b' in the equation above
         c: A float representing the parameter 'c' in the equation above
 
-    Returns: 
+    Returns:
         A float representing the resulting distance in centimeters from the voltage
     """
-    return (np.log((v - c)/a)/b)
+    return np.log((v - c)/a)/b
 
 def generate_calibration_plot(distances_cm, readings):
     """
@@ -73,7 +73,7 @@ def generate_calibration_plot(distances_cm, readings):
 
     # Fit curve
     param, cov = curve_fit(f=exponential, xdata=distances_cm, ydata=readings_volt,
-        bounds=(-np.inf, np.inf), p0=[850.0, -0.01, -50.0])
+                           bounds=(-np.inf, np.inf), p0=[850.0, -0.01, -50.0])
     print(f"Curve Fit Equation: {param[0]} * e ^ {param[1]}x + {param[2]}")
 
     # Plot fitted curve
@@ -97,7 +97,6 @@ def test_calibration_curve(param, test_data):
     """
     readings_volt = test_data[1] * 5 / 1023
 
-    plt.clf
     plt.plot(inv_exponential(readings_volt, *param), readings_volt, 'ro', label="Predicted Data")
     plt.plot(test_data[0], readings_volt, 'bo', label="Collected Data")
     plt.xlabel("Distance (cm)")
