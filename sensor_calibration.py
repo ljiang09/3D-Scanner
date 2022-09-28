@@ -37,16 +37,25 @@ def inv_exponential(v, a, b, c):
 
     Equation: x = ln((v - c)/a) / b
 
+    This function ensures that the ln of a negative value isn't tried to be taken, so if there is a
+    negative value, it will default to a minimal value of ln(0.001) / b 
+
     Args:
-        v: A float representing the voltage value from the scanner's measured value
+        v: A float/array representing the voltage value from the scanner's measured value
         a: A float representing the parameter 'a' in the equation above
         b: A float representing the parameter 'b' in the equation above
         c: A float representing the parameter 'c' in the equation above
 
     Returns:
-        A float representing the resulting distance in centimeters from the voltage
+        A float/array representing the resulting distance in centimeters from the voltage
     """
-    return np.log((v - c)/a)/b
+    v_new = []
+    for v_value in v:
+        if((v_value - c) / a) > 0:
+            v_new.append(np.log((v_value - c)/a) / b)
+        else:
+            v_new.append(np.log(0.001) / b)
+    return np.array(v_new)
 
 def generate_calibration_plot(distances_cm, readings):
     """

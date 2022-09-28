@@ -130,12 +130,20 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
     f.close()
     return np.array(positions), radii
 
-def plot_single_sweep(position_degrees, ):
+def plot_single_sweep(position_degrees, sensor_volt, params):
     """
     TODO:
     """
     pan_degrees = np.array(position_degrees[0])
     pan_degrees -= 30 # phi
+
+    # Convert sensor data to distances
+    radii = calibrate.inv_exponential(sensor_volt, *params)
+    plt.plot(pan_degrees, radii)
+    plt.xlabel("Angular Pan from Center (Degrees)")
+    plt.ylabel("Distance Value Detected (cm)")
+    plt.title("Single Pan Distances over Angles")
+    plt.show()
 
 
 
