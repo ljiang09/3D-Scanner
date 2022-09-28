@@ -1,6 +1,14 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
+\usepackage{color,soul}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{tcolorbox}
+\graphicspath{ {./images/} }
+
+\usepackage[legalpaper, portrait, margin=1in]{geometry}
+
 
 
 \title{PIE Mini Project 2}
@@ -11,67 +19,818 @@
 
 \maketitle
 
-\section{Objectives}
-    The goal for Mini Project 2 is to build a basic 3D scanner with a pan/tilt mechanism, and program it with an Arduino. This scanner will scan a cardboard letter (of which the geometry is known), and this data will then be visualized using \_\_\_\_\_.
+\section{Introductions}
+    \noindent{The goal for Mini Project 2 is to build a basic 3D scanner with a pan/tilt mechanism, and program it with an Arduino. This scanner will scan a cardboard letter (of which the geometry is known), and the data will then be visualized with the matplotlib library in Python.}
 
 
 \section{Testing the parts}
-Before delving into anything, each of the parts needed to be tested for functionality.
+\noindent{Before delving into anything, each of the parts needed to be tested for functionality.}
 
     \subsection{Motors:}
-    We used the Tiankongrc MG996R servo motors. \\
+    \noindent{We used the Tiankongrc MG996R servo motors to control the pan and tilt mechanisms.} \\
     \\
-    The Arduino IDE comes with an example called “Sweep”, which causes a servo to rotate back and forth. This checks to make sure the motor responds to commands properly, and actually rotates a full 180 degrees.
+    To check if the servos functioned properly, we ran the "Sweep" example that comes with the Arduinon IDE. This script makes the servos rotate back and forth a full 180 degrees. We used this to verify that our servos had the full range of motion and responded to commands properly.
 
     \subsection{Sensor:}
-    We used the Sharp GP2Y0A02YK0F IR distance sensor. \\
+    \noindent{We used the Sharp GP2Y0A02YK0F IR distance sensor.} \\
     \\
-    The Arduino IDE comes with an example called "AnalogInput", which we used to test that the sensor readings changed with distance as expected. \\
-    \textbf{TODO: A description of the process you used to test your sensor.}
+    To check that the sensor read distances as expected, we ran the "AnalogInput" example that comes with the Arduino IDE. To test the sensor's functionality, we plugged the wires directly into the Arduino and printed the values it read. We looked for a noticeable and consistent difference in readings when we pointed the sensor at objects at varying distances. \\
 
 \section{Calibration}
-    Before using the sensor, we needed to calibrate the values read in by the Arduino. The Arduino read in integer values in the hundreds, but we didn't know how those values corresponded to physical distances. \\
+    \noindent{Before using the sensor, we needed to calibrate the values read in by the Arduino. The Arduino read in integer values in the hundreds, but we didn't know how those values corresponded to physical distances.} \\
     \\
-    To find this relation (AKA calibrate the sensor), we took 10 distance readings. We made sure to stay within the distance range that the sensor's \href{https://www.sparkfun.com/datasheets/Sensors/Infrared/gp2y0a02yk_e.pdf}{spec sheet} recommended, which was 20-150 cm.
+    To find this relation (AKA calibrate the sensor), we took 19 distance readings. We made sure to stay within the distance range that the sensor's \href{https://www.sparkfun.com/datasheets/Sensors/Infrared/gp2y0a02yk_e.pdf}{spec sheet} recommended, which was 20-150 cm.
     
     \begin{center}
     \begin{tabular}{ |c|c| } 
-     \hline
-     Distance (inches) & Arduino Reading \\
-     \hline
-     8 & 490 \\
-     12 & 385 \\ 
-     16 & 300 \\
-     20 & 240 \\
-     24 & 210 \\
-     28 & 185 \\
-     32 & 170 \\
-     36 & 157 \\
-     40 & 153 \\
-     44 & 145 \\
-     \hline
+        \hline
+        Distances (cm) & Arduino Reading \\
+        \hline
+        20 & 500 \\
+        24 & 470 \\
+        28 & 410 \\
+        32 & 395 \\
+        36 & 343 \\
+        40 & 315 \\
+        44 & 286 \\
+        48 & 255 \\
+        52 & 240 \\
+        56 & 210 \\
+        60 & 195 \\
+        64 & 180 \\
+        68 & 170 \\
+        72 & 160 \\
+        90 & 120 \\
+        110 & 95 \\
+        120 & 85 \\
+        130 & 80 \\
+        140 & 75 \\
+        \hline
     \end{tabular}
+    \vspace{3 mm}
+    \\
+    \textit{Table 1: Arduino readings and distances (in both inches and centimeters)}
     \end{center}
-    Table 1: Arduino readings and distances
+
+    \noindent{We knew several things about the Arduino Readings. First, the actual analog readings ranged from values of 0 to 1023. Secondly, these Arduino values corresponded to input voltages from 0 V to 5 V, respectively.} \\
+    \\
+    Because it made more sense to think about voltage rather than an arbitrary number, we decided to plot voltage against distance rather than analog reading number. To do this, we turned each Arduino analog value into a ratio by dividing it by 1023, then multiplied this ratio by 5.
+
+    \begin{tcolorbox}
+    \textbf{data\_split:} A 3-row array representing the 3 datapoints sent in by the Arduino scanner: distance, tilt angle, pan angle.
+\begin{verbatim}
+float(data_split[0]) * 5 / 1023
+\end{verbatim}
+    \end{tcolorbox}
+    
+    
+    \includegraphics[scale=0.9]{MP2CalibrationCurve}
+    \begin{center}
+        \textit{Figure 1: Sensor Reading vs. Measured Distance. The IR sensor was placed at known distances, \\and the voltage readings were plotted against the distances. An exponential function was fitted to the curve.}
+    \end{center}
+
+    \noindent{To validate our calibration curve, we measured Arduino readings at random distances from 20 to 150 cm and plotted the actual distances they were from the sensor against the predicted distances (cm) (which were calculated from the curve of best fit). These distances are listed in \textit{Table 2}.}
 
     
-    \textbf{TODO: A calibration plot depicting analog voltage reading vs. actual distance.} \\
-    \textbf{TODO: An error plot showing predicted distance and actual distance for distances not included in your calibration routine.} \\
-    \textbf{TODO: An explanation of your calibration function}
+    \begin{center}
+    \begin{tabular}{ |c|c| } 
+        \hline
+        Distances (cm) & Arduino Reading \\
+        \hline
+        30 & 400 \\
+        38 & 330 \\
+        43 & 298 \\
+        53 & 230 \\
+        66 & 180 \\
+        73 & 160 \\
+        \hline
+    \end{tabular}
+    \vspace{3 mm}
+    \\
+    \textit{Table 2: Calibration Error Testing: Arduino readings and distances (in both inches and centimeters)}
+    \end{center}
+
+    
+    \begin{center}
+        \includegraphics[scale=1]{MP2CalibrationTest} \\
+        \textit{Figure 2: Error plot: Actual vs. Predicted Distances. An IR sensor was placed at random distances from a wall, and the voltage readings were plotted against the calculated value from the curve of best fit.}
+    \end{center}
+
+
+    \noindent{Based on the visualizations we generated (figures 1 and 2), we guessed that the curve of best fit would take on the form of an exponential function due to how the plots initially quickly declined, then began to "flatten" out as distance increased. Thus, plotting the data points in Table 1, we generated an exponential curve of best fit through the curve-fit function of scipy.optimize: \\}
+    \begin{equation}
+        y = 3.959 * e ^ {-0.029x} + 0.296
+    \end{equation}
+    where $y$ represents the voltage read from the sensor, and $x$ represents how far away (in cm) the sensor is from the object it is sensing. This formula converted distance values into voltages for us, but we needed to go from voltage readings to predicted distances. In order to do this, we solved this equation in terms of x (which was distance) to find the equation:\\
+    \begin{equation}
+        x = \frac{ln(\frac{y - 0.296}{3.959})}{-0.029}
+    \end{equation}
+    One thing to note for this section is that some readings of the IR sensor that were detecting background very far away or not detecting anything (ex: 40) resulted in a "negative" value being put into the ln function, which is mathematically not possible. For these scenarios, we defaulted to the minimal value of 0.001 being inputted instead. This substitution makes sense contextually because it is representing a very low voltage reading, which is also what actually occurred in the scanning process. \noindent{All code relating to this calibration process is present in the {\it sensor\textunderscore{calibration.py}} file.}\\
+    \\
+    \noindent{While recording sensor values for calibration, an observation we made was that the readings were very unstable. Oscillations were up to 30-40 readings above and below the actual sensed value. This noise meant that there would be inaccuracies in our scans. To account for some of this, we decided that for all of our scans, we would take the average of 10 readings at each degree. This was implemented in our Arduino code.}
+
 
 \section{1-Servo Scan}
-    \textbf{TODO: images of the setup, labeled. Make sure to have a top view} \\
-    \textbf{TODO: Data gathered from the image of 1 servo scan} \\
+    \noindent{The next step in the process was to successfully gather a scan using just one servo (we used panning as our range of motion, but tilting would work as well).} \\
+
+    \includegraphics[scale=0.73]{MP2SingleServoSetup}
+    \includegraphics[scale=0.45]{MP2SingleServoSetupTop}
+    \begin{center}
+        \textit{Figure 3: Top and Side View of the single servo setup. A servo was mounted to a base plate (left image), with the spinning protrusion pointing up.}
+    \end{center}
+    \noindent{Shown below in Figure 4 is the circuit diagram for the single servo setup from Figure 3. As seen here, there is a bypass capacitor of 10 microFarads in parallel with the circuit as recommended from the data sheets. Data is read in from the sensor into analog pin 5, and pin 3 is used to write to the servo.}
+    \begin{center}
+        \includegraphics[scale=0.4]{1ServoDiagram} \\
+        \textit{Figure 4: Circuit diagram for a single-servo setup. The left yellow rectangle is the Arduino, the center rectangle is the IR sensor, and the right rectangle is the servo.}
+    \end{center}
+
+    \noindent{The sweep script for the one servo scan is listed in Code Input 1 as well as in the file $ArduinoSingleSweep.ino$. The scan took place at a constant 10 degrees tilt (which positioned the sensor straight towards the letter. Panning was swept from 10 to 50 degrees, where 30 degrees represented a straight detection of the object. This data was centered to 0 degrees (30 mapped to 0, 40 mapped to 10, etc) and readings were converted to distances with the calibrated equation, leading to the visualization in Figure 5.} 
+    \begin{center}
+        \includegraphics[scale=0.6]{1ServoDataVisualization} \\
+        \textit{Figure 5: Data gathered from scanning the cardboard letter with just one panning servo.}
+    \end{center}
+    \hl{TODO: INSERT CODE HERE and call it Code Input 1} \\
+    \\
+    \noindent{The shape we chose to scan was a L after Lily's name. This was placed about 20-30 cm away from the sensor. Figure 5's results show that our sensor was working as expected. Because this was measuring the middle portion of the L shape, we expected there to be no close readings for the entire length of the base until the sensor reached the vertical line of the L. This is also seen in Figure 5. From about -20 to 8 degrees, there were almost no close distances measured. All distances were greater than 100 cm away. From about 8 to 18 degrees, the distances measured were around 20 cm, which was correct as well.}\\
+    \\
+    \noindent{The unexpected portions of the graph (2-3 sudden dips at about -12, -5, and 2 degrees) can be attributed to the inaccuracy of the IR sensor explained above as well as background noise. These scans were taken in a space with furniture and other objects around, which could have been detected in the results at these points.}
     
-    \section{2-Servo Scan}
-    \textbf{TODO: An image of your setup for the 2 servo apparatus} \\
-    \textbf{TODO: visualization of the 3D data resulting from your scan (a plot, an image, a video, etc)}
+\section{2-Servo Scan}
+    \noindent{Given that the single-servo scan worked as intended, we moved on to adding a second servo for tilt. Figures 6, 7, and 8 detailed the setup and wiring we used.} \\
+    
+    \includegraphics[scale=0.71]{ScannerMechanismCAD}
+    \includegraphics[scale=0.73]{ScannerMechanismCADTop}
+    \begin{center}
+        \textit{Figure 6: Isometric and top views of the 2-servo assembly. Note that in the top view, it is clear that the sensor is centered over the panning servo. This was done to prevent any extra work in adjusting the angles when trying to visualize the scan.}
+    \end{center}
+
+    \hl{TODO: Jacob put description for why he designed it like this. reasonings}
+
+    \begin{center}
+        \includegraphics[scale=0.1]{2ServoSetup}
+        \\
+        \textit{Figure 7: Image of the 2-servo setup, scanning a cardboard cutout of the letter "L".}
+    \end{center}
+
+    \includegraphics[scale=0.4]{2ServoDiagram}
+    \begin{center}
+        \textit{Figure 8: Circuit diagram for a 2-servo setup. The left yellow rectangle is the Arduino, the center rectangle is the IR sensor, and the two rightmost rectangles are the servos. The left servo controls the tilt, the right servo controls the pan.}
+    \end{center}
+
+    \noindent{As seen in \textit{Figure 8}, the two servos were connected to pins 3 and 5. This was because we needed to write to them (which cannot be done using the purely analog pins). Thus we used PWM pins. For the input, pin A5 was used again and a bypass capacitor added in parallel to the circuit as well.}
+    
+    \hl{ADD CODE FOR SCANNING HERE}
+
+    \noindent{After scanning using both servos, we generated the visualization in Figure 9. The steps we took to convert sensor data, which was in Shpericalto the Cartesian representation were:} \\ \\
+    1. Convert sensor data into distances using our calibration curve. Note that we used the inverse of our calibration curve because we originally plotted Voltage vs. Distance, but here we were looking for Distance vs. Voltage.
+
+    \begin{tcolorbox}
+    \textbf{sensor\_volt:} The voltages read in by the IR sensor. \\
+    \textbf{params:} A float array representing the coefficients and transformations that define the sensor's calibration curve.
+\begin{verbatim}
+radii = calibrate.inv_exponential(sensor_volt, *params)
+\end{verbatim}
+    \end{tcolorbox}
+
+    \noindent{2. Using the angles and the calculated distance, convert spherical coordinates to Cartesian coordinates.}
+
+    \begin{tcolorbox}
+    \textbf{tilt\_radian:} the angle that the tilt servo is at, in radians. \\
+    \textbf{pan\_radian:} the angle that the pan servo is at, in radians.
+\begin{verbatim}
+import numpy as np
+x = radii[index] * np.sin((np.pi/2) - tilt_radian) * np.cos((np.pi/2) - pan_radian)
+y = radii[index] * np.sin((np.pi/2) - tilt_radian) * np.sin((np.pi/2) - pan_radian)
+z = radii[index] * np.cos((np.pi/2) - tilt_radian)
+\end{verbatim}
+    \end{tcolorbox}
+
+    \noindent{3. Plot Cartesian coordinates in 3D space.}
+
+    \begin{tcolorbox}
+    \textbf{positions:} A 3 row array representing the x, y, and z values (respectively) calculated for each of the values the sensor reads in.
+\begin{verbatim}
+import matplotlib.pyplot as plt
+ax = plt.axes(projection='3d')
+ax.scatter3D(positions[0], positions[1], positions[2])
+plt.show()
+\end{verbatim}
+    \end{tcolorbox}
+
+    
+    \begin{center}
+        \includegraphics[scale=1]{ScannerDataVisualization}
+        \\
+        \textit{Figure 9: A 3D scatter plot representing the measurements from the full sensor scan. The item being scanned was a cardboard cutout in the shape of "L", which can be seen on the left side of the plot.}
+    \end{center}
+
 
 \section{Reflection}
-\textbf{TODO: An explanation of and reflection on your design (including software, electrical and mechanical parts). What worked well and what could be improved?}
 
-\section{Source Code}
-\textbf{TODO: All source code}
+\noindent{Within the mechanical design, using heat set inserts to assemble everything via screws was very effective, and offered more sturdiness and precision compared to directly screwing things into the PLA.} \\
+
+\noindent{While using small screws to attach the horns to the printed parts, it could be improved upon by implementing a locating feature to better find the holes. Also, the pan-tilt mechanism was quite rigid and often experienced physical resistance because of all the forces on the servos. Additionally, using servo CAD files from GrabCad resulted in issues because the CAD had slightly incorrect dimensions.} \\
+
+\noindent{For better integration with the software, it would have been beneficial to find and mark the "0" angle on each servo. We would find ourselves dismantling the mechanism to make adjustments, and having no reference point to replace servo attachments meant that each time, we would have to re-calibrate the starting orientations within the code.} Another improvement could be in the base design, as it protruded out a lot in front of the sensor, which limited how far down it could scan without interference. Thus, the object to be scanned either had to be really far away, or lifted up. \\
+
+\noindent{On the software side, all of the code was written very cleanly and commented well.} However, the data visualization was very tough; converting the angles and distances into the Cartesian coordinate system proved to invite a large amount of issues. Furthermore, once we actually got the plot, there was noticable point clustering rather than a relatively uniform scatter. The reason for this is still unknown after hours of testing, so we still don't know how to fix this. \\ \\
+
+% get another 2 servo scan - get images of another angle to see if the clusters are also existing in y-dimension
+% talk about calibration issues
+% discuss firmware code
+
+
+
+\newpage
+\section*{Appendix: Source Code}
+The GitHub repo can be found here: \href{https://github.com/ljiang09/PIE-Mini-Project-2}{https://github.com/ljiang09/PIE-Mini-Project-2}
+\begin{tcolorbox}
+main.py
+\begin{verbatim}
+"""
+Driver file for calibration curves and sensor visualization.
+"""
+import serial
+import sensor_calibration as calibrate
+import python_receive_data as prd
+
+# Link to port for communication with Arduino
+ARDUINO_COM_PORT = "/dev/ttyACM0"
+BAUD_RATE = 9600   # This value must be the exact same as in the Arduino code
+SERIAL_PORT = serial.Serial(ARDUINO_COM_PORT, BAUD_RATE, timeout=10)
+
+# Calibrate, plot, and fetch parameters of sensor reading vs. distance equation
+PARAMS = calibrate.run_calibration()
+
+# Fetch data until STOP command given
+SENSOR_VOLT, POSITIONS,POSITIONS_DEGREES, RADII = \
+    prd.fetch_data(SERIAL_PORT, get_data=True, params=PARAMS)
+
+# Generate image of scanned object
+prd.plot_heatmap(POSITIONS, RADII)
+\end{verbatim}
+\end{tcolorbox}
+
+
+
+\begin{tcolorbox}
+python\_receive\_data.py
+\begin{verbatim}
+"""
+Listens for data from the Arduino scanner, generates a 3D visualization of
+the scanned object.
+"""
+import csv
+import numpy as np
+import matplotlib.pyplot as plt
+
+import sensor_calibration as calibrate
+
+
+def fetch_data(serial_port, get_data, params):
+    """
+    Listens for and gathers data from the Arduino scanner.
+    Args:
+        serial_port: A serial port object representing the port associated with
+            the Arduino.
+    get_data: A bool representing whether data from the Arduino should be
+        gathered at the moment.
+    params: A float array representing the coefficients and transformations
+        that define the sensor's calibration curve.
+      Returns:
+          sensor_volt: The voltages read in by the IR sensor.
+          positions: A 3 row array representing the x, y, and z values (respectively)
+            calculated for each of the values the sensor reads in.
+          radii: The distances measured by the IR sensor (calculated using the
+            calibration curve).
+      """
+    sensor_volt = []
+    position_degrees = [[], []]
+    
+    # Open a csv file to write into
+    file = open("recording_data.csv", "w")
+    writer = csv.writer(file)
+    writer.writerow(["value", "pan_degree", "tilt_degree"])
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+python\_receive\_data.py (continued)
+\begin{verbatim}
+    # Fetch data from Arduino
+    while get_data:
+        data_line = serial_port.readline()
+
+        try:
+            data_line = data_line.decode("utf-8")
+
+            # End fetching if "STOP" is read in from Arduino code
+            if data_line == "STOP\r\n":
+                get_data = False
+
+            # Else convert reading to voltage and degrees
+            if len(data_line) > 4:
+                data_split = data_line.split(',')
+
+                if len(data_split) == 3:
+                    try:
+                        sensor_volt.append(float(data_split[0]) * 5 / 1023)
+                        position_degrees[0].append(float(data_split[1])) # Pan
+                        position_degrees[1].append(float(data_split[2])) # Tilt
+                    except:
+                        print("Got empty result")
+
+                print(data_split)
+                writer.writerow([float(data_split[0]), float(data_split[1]),
+                    float(data_split[2])])
+
+        except:
+            print("Couldn't decode the line")
+
+    file.close()
+
+    sensor_volt = np.array(sensor_volt)
+
+    positions, radii = angle_to_coordinates(sensor_volt, position_degrees, params)
+    return (sensor_volt, positions, position_degrees, radii)
+
+def angle_to_coordinates(sensor_volt, position_degrees, params):
+    """
+    Converts pan/tilt angles to Cartesian coordinates.
+    Notes:
+        XYZ axes: Given that the sensor is facing the object, the X axis points to
+        the right of the object, the Z axis points upwards from the object (towards
+        the ceiling) and the Y axis points towards the sensor, fulfilling the
+        right-hand rule.
+    Args:
+        sensor_volt: The voltages read in by the IR sensor.
+        position_degrees: A 2-row array representing the pan and tilt angles
+            (respectively).
+        params: A float array representing the coefficients and transformations
+            that define the sensor's calibration curve.
+    Returns:
+        np.array(positions): A 3-row array representing the x, y, and z values
+            (respectively) calculated for each of the values the sensor reads in.
+        radii: The distances measured by the IR sensor (calculated using the
+            calibration curve).
+    """
+    pan_degrees = np.array(position_degrees[0])
+    tilt_degrees = np.array(position_degrees[1])
+
+    # Convert sensor data to distances
+    radii = calibrate.inv_exponential(sensor_volt, *params)
+
+    # Center the angles so that these degrees are not set to 0
+    pan_degrees -= 30 # phi
+    tilt_degrees -= 10 # theta
+
+    positions = [[], [], []]
+\end{verbatim}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+python\_receive\_data.py (continued)
+\begin{verbatim}
+    # Create csv
+    f = open("n_data.csv", 'w')
+    writer = csv.writer(f)
+    writer.writerow(["x", "y", "z", "radii"])
+
+    for index in range(len(pan_degrees)):
+        # Convert degrees to radians
+        pan_radian = np.radians(pan_degrees[index])
+        tilt_radian = np.radians(tilt_degrees[index])
+
+        # Convert spherical to cartesian
+        x = radii[index] * np.sin((np.pi / 2) - tilt_radian) * \
+            np.cos((np.pi / 2) - pan_radian)
+        y = radii[index] * np.sin((np.pi / 2) - tilt_radian) * \
+            np.sin((np.pi / 2) - pan_radian)
+        z = radii[index] * np.cos((np.pi / 2) - tilt_radian)
+
+        positions[0].append(x)
+        positions[1].append(y)
+        positions[2].append(z)
+
+        writer.writerow([x, y, z, radii[index]])
+
+    f.close()
+    return np.array(positions), radii
+
+
+def plot_single_sweep(position_degrees, ):
+    """
+    Plots the scanned datapoints for a single-servo sweep.
+    """
+    pan_degrees = np.array(position_degrees[0])
+    pan_degrees -= 30 # phi
+
+
+def plot_heatmap(positions):
+    """
+    Plots the scanned datapoints in the Cartesian system.
+    Args:
+        positions: A 3 row array representing the x, y, and z values (respectively)
+            calculated for each of the values the sensor reads in.
+    """
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.scatter3D(positions[0], positions[1], positions[2])
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    plt.show()
+    plt.title("Heatmap of Distances")
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+sensor\_calibration.py
+\begin{verbatim}
+"""
+Calibration for IR Sensor
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+
+# Readings taken at 4 cm intervals starting at 20 cm
+DISTANCES = np.array([20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72,
+    90, 110, 120, 130, 140])
+READINGS = np.array([500, 470, 410, 395, 345, 315, 286, 255, 240, 210, 195, 180,
+    170, 160, 120, 95, 85, 80, 75])
+
+# Readings taken at distances (cm) specified in
+TEST_DATA = np.array([[30, 38, 43, 53, 66, 73], [400, 330, 298, 230, 180, 160]])
+
+def exponential(x, a, b, c):
+    """
+    Convert distances in centimeters to voltage values
+    Equation: v = ae^(bx) + c
+    Args:
+        x: A float representing the distance in centimeters from the scanner
+        a: A float representing the parameter 'a' in the equation above
+        b: A float representing the parameter 'b' in the equation above
+        c: A float representing the parameter 'c' in the equation above
+    Returns:
+        A float representing the resulting voltage from the equation with
+            inputs entered
+    """
+    return (a * np.exp((b * x))) + c
+
+def inv_exponential(v, a, b, c):
+    """
+    Convert voltages to distances in centimeters
+    Equation: x = ln((v - c)/a) / b
+    Args:
+        v: A float representing the voltage value from the scanner's measured value
+        a: A float representing the parameter 'a' in the equation above
+        b: A float representing the parameter 'b' in the equation above
+        c: A float representing the parameter 'c' in the equation above
+    Returns:
+        A float representing the resulting distance in centimeters from the voltage
+    """
+    return np.log((v - c)/a)/b
+
+def generate_calibration_plot(distances_cm, readings):
+    """
+    Based on data generated from an IR sensor located at different distances from
+    a wall, a calibration plot is created
+    Args:
+        distances_cm: A numpy array representing the distances from where readings
+            were taken in centimeters.
+        readings: A numpy array representing the readings from the Arduino (0 to
+            5V mapped to integers 0 to 1023).
+    Return:
+        param: A list of parameters (a, b, c) for the exponential and
+            inv_exponential functions above fitted to the data entered.
+    """
+    # Convert reading to correct units (V)
+    readings_volt = readings * 5 / 1023
+
+    # Plot reading against distance
+    plt.plot(distances_cm, readings_volt, 'ro', label="Collected Data")
+    plt.xlabel("Distance (cm)")
+    plt.ylabel("IR Sensor Reading (V)")
+    plt.title("IR Sensor Readings over Distance")
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+sensor\_calibration.py (continued)
+\begin{verbatim}
+    # Fit curve
+    param, cov = curve_fit(f=exponential, xdata=distances_cm, ydata=readings_volt,
+                           bounds=(-np.inf, np.inf), p0=[850.0, -0.01, -50.0])
+    print(f"Curve Fit Equation: {param[0]} * e ^ {param[1]}x + {param[2]}")
+
+    # Plot fitted curve
+    plt.plot(distances_cm, exponential(distances_cm, *param), 'b', 
+        label="Fitted Line")
+    plt.legend()
+    plt.show()
+
+    return param
+
+def test_calibration_curve(param, test_data):
+    """
+    Test the calibration curve generated through generate_calibration_plot with
+    test data. Find voltages for known distances and compare those values to
+    calculated distances. This is depicted through a plot.
+    Args:
+        param: A list of parameters (a, b, c) for the exponential and
+            inv_exponential functions above fitted to the data entered.
+        test_data: A np.array of data with the first row having actual distances in
+            centimeters and recorded values from the sensor (NOT volts) in the
+            second row
+    """
+    readings_volt = test_data[1] * 5 / 1023
+
+    plt.plot(inv_exponential(readings_volt, *param), readings_volt, 'ro',
+        label="Predicted Data")
+    plt.plot(test_data[0], readings_volt, 'bo', label="Collected Data")
+    plt.xlabel("Distance (cm)")
+    plt.ylabel("IR Sensor Reading (V)")
+    plt.legend()
+    plt.title("Actual vs Predicted IR Sensor Readings")
+    plt.show()
+
+def run_calibration():
+    """
+    Runner function for calibration. This generates a calibration plot and uses
+    the parameters to test distances. The parameters are also returned for further
+    usage.
+    Returns:
+        params: A list of parameters (a, b, c) for the exponential and 
+            inv_exponential functions above fitted to the data entered.
+    """
+    params = generate_calibration_plot(DISTANCES, READINGS)
+    test_calibration_curve(params, TEST_DATA)
+    return params
+\end{verbatim}
+\end{tcolorbox}
+
+
+
+\begin{tcolorbox}
+Test\_Sensor\_Values.ino
+\begin{verbatim}
+/*
+ Prints sensor readings.
+*/
+const int sensorPin = A0;    // select the input pin for the potentiometer
+const int sensorValue = 0;  // variable to store the value coming from the sensor
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  sensorValue = analogRead(sensorPin);
+  Serial.println(sensorValue);
+  delay(15);
+}
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+Sweep.ino
+\begin{verbatim}
+/* Sweep
+ by BARRAGAN <http://barraganstudio.com>
+ This example code is in the public domain.
+
+ modified 8 Nov 2013
+ by Scott Fitzgerald
+ https://www.arduino.cc/en/Tutorial/LibraryExamples/Sweep
+*/
+
+#include <Servo.h>
+
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+
+int pos = 0;    // variable to store the servo position
+
+void setup() {
+  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+}
+
+void loop() {
+  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);          // tell servo to go to position in variable 'pos'
+    delay(15);                   // waits 15 ms for the servo to reach the position
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+    myservo.write(pos);          // tell servo to go to position in variable 'pos'
+    delay(15);                   // waits 15 ms for the servo to reach the position
+  }
+}
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+ArduinoSingleSweep.ino
+\begin{verbatim}
+// servo 1 controls the vertical movement, servo 2 controls the horizontal movement
+// each servo has a predefined 0 angle. the servo is "centered" at 90 degrees
+#include <Servo.h>
+Servo servo1;
+Servo servo2;
+
+// Servos need to be in PWM pins
+const int servo1Pin = 3;
+const int servo2Pin = 5;
+const int sensorPin = A5;
+
+
+int sensorValue = 0;  // value read in from the sensor
+int sensorAvg = 0; // avg of 10 readings from sensor
+
+// initial positions for the two servos
+int pos1 = 10;
+int pos2 = 30;
+
+// increments to determine how much each servo will move each time
+const int servo2Increment = 1;
+
+// range of motion for each servo
+const int servo2Start = 10; // 10
+const int servo2End = 50; //50
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+ArduinoSingleSweep.ino (continued)
+\begin{verbatim}
+
+void setup()
+{
+    // NOTE1: The baudRate for sending & receiving programs must match
+    // NOTE2: Set the baudRate to 115200 for faster communication
+    long baudRate = 9600;
+    Serial.begin(baudRate);
+    servo1.attach(servo1Pin);
+    servo2.attach(servo2Pin);
+}
+
+
+void loop() {
+  // move servo 1 (tilting) to face directly forward and stay there
+  servo1.write(pos1);
+
+  // sweep servo 2 (panning) through one pass
+  for (pos2 = servo2Start; pos2 <= servo2End; pos2 += servo2Increment) {
+      servo2.write(pos2);
+      sensorAvg = 0;
+      for (int i = 0; i < 10; i++) {
+        sensorValue = analogRead(sensorPin);
+        sensorAvg = sensorAvg + sensorValue;
+        delay(50);
+      }
+      // print distance and angle values to the serial monitor for python parsing
+      Serial.println(String(sensorAvg/10) + "," + String(pos2) + "," + String(pos1));
+    
+  }
+}
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+ArduinoSendData.ino
+\begin{verbatim}
+// Gathers data from IR sensor, prints to Serial Monitor to be read in by a
+// Python listener.
+
+// servo 1 controls the vertical movement, servo 2 controls the horizontal movement
+// each servo has a predefined 0 angle. the servo is "centered" at 90 degrees
+#include <Servo.h>
+Servo servo1;
+Servo servo2;
+
+// Note: Servos need to be in PWM pins
+const int servo1Pin = 3;
+const int servo2Pin = 5;
+const int sensorPin = A5;
+
+
+int sensorValue = 0;  // value read in from the sensor
+int sensorAvg = 0; // avg of 10 readings from sensor
+bool positiveRotation = true;  // toggles each time the horizontal servo finishes
+    a pass, so the next pass will be in the opposite direction
+
+// initial positions for the two servos
+int pos1 = 10;
+int pos2 = 30;
+
+// increments to determine how much each servo will move each time
+const int servo1Increment = 5;
+const int servo2Increment = 1;
+
+// range of motion for each servo
+const int servo1Start = 0;
+const int servo1End = 25; //25
+const int servo2Start = 10; // 10
+const int servo2End = 50; //50
+\end{verbatim}
+\end{tcolorbox}
+
+
+
+
+\begin{tcolorbox}
+ArduinoSendData.ino (continued)
+\begin{verbatim}
+// set up servos and communications
+void setup()
+{
+    // NOTE1: The baudRate for sending & receiving programs must match
+    // NOTE2: Set the baudRate to 115200 for faster communication
+    long baudRate = 9600;
+    Serial.begin(baudRate);
+    servo1.attach(servo1Pin);
+    servo2.attach(servo2Pin);
+}
+
+void loop()
+{
+   // in steps of 1 degree, tell servo1 to go to position in variable 'pos1'
+   for (pos1 = servo1Start; pos1 <= servo1End; pos1 += servo1Increment) {
+       // Control the tilt mechanism
+       servo1.write(pos1);
+
+       // tells the pan servo to move from 0 degrees to 180 degrees
+       if (positiveRotation) {
+           for (pos2 = servo2Start; pos2 <= servo2End; pos2 += servo2Increment) {
+               // Control the pan mechanism
+               servo2.write(pos2);
+
+               // using an average sensor reading reduces "jolting" plots
+               sensorAvg = 0;
+               for (int i = 0; i < 10; i++) {
+                 sensorValue = analogRead(sensorPin);
+                 sensorAvg = sensorAvg + sensorValue;
+                 delay(50);
+               }
+               Serial.println(String(sensorAvg/10) + "," + String(pos2) + ","
+                    + String(pos1));
+               delay(15);
+
+               // if the servo has reached the end of its pass, toggle variable so
+               // it moves in the opposite direction
+               if (pos2 == servo2End) {
+                   positiveRotation = false;
+               }
+           }
+       }
+
+       // tells the pan servo to move from 180 degrees to 0 degrees
+       else {
+           for (pos2 = servo2End; pos2 >= servo2Start; pos2 -= servo2Increment) {
+               // Control the pan mechanism
+               servo2.write(pos2);
+               sensorValue = analogRead(sensorPin);
+               
+               // using an average sensor reading reduces "jolting" plots
+               sensorAvg = 0;
+               for (int i = 0; i < 10; i++) {
+                  sensorValue = analogRead(sensorPin);
+                  sensorAvg = sensorAvg + sensorValue;
+                  delay(50);
+               }
+               Serial.println(String(sensorAvg/10) + "," + String(pos2) + ","
+                    + String(pos1));
+               delay(15);
+
+               // if the servo has reached the end of its pass, toggle variable so
+               // it moves in the opposite direction
+               if (pos2 == servo2Start) {
+                   positiveRotation = true;
+               }
+           }
+       }
+\end{verbatim}
+\end{tcolorbox}
+
+
+\begin{tcolorbox}
+ArduinoSendData.ino (continued)
+\begin{verbatim}
+       delay(400);
+   }
+   
+   // STOP is the keyword to signal the python code to stop fetching data
+   Serial.println("STOP");
+}
+\end{verbatim}
+\end{tcolorbox}
 
 
 \end{document}
