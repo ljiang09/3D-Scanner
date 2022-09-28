@@ -16,7 +16,7 @@ def fetch_data(serial_port, get_data, params):
   sensor_volt = []
   position_degrees = [[], []]
 
-  f = open("recording_data1.csv", "w")
+  f = open("recording_data2.csv", "w")
   writer = csv.writer(f)
   writer.writerow(["value", "pan_degree", "tilt_degree"])
 
@@ -68,12 +68,12 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
   radii = calibrate.inv_exponential(sensor_volt, *params)
 
   # # Center the angles so that 90 degrees is 0 (At '90 degrees', new 0, distance = radius) for x + y
-  # pan_degrees -= 30 # phi
-  # tilt_degrees -= 10 # theta
+  pan_degrees -= 30 # phi
+  tilt_degrees -= 10 # theta
 
   positions = [[], [], []]
 
-  f = open("n_data1.csv", 'w')
+  f = open("n_data2.csv", 'w')
   writer = csv.writer(f)
   writer.writerow(["x", "y", "z", "radii"])
 
@@ -99,11 +99,31 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
     positions[1].append(y)
     positions[2].append(z)
 
+    # print(f"X: {x}")
+    # print(f"Y: {y}")
+    # print(f"Z: {z}")
+
     writer.writerow([x, y, z, radii[index]])
 
   f.close()
   positions = filter_data(positions)
   return np.array(positions), radii
+
+def read_position_from_csv(filepath):
+  """
+  TODO:
+  """
+  positions = [[], [], []]
+
+  with open('n_data2.csv', 'r') as f:
+    file = csv.reader(f)
+    next(file)
+    for row in file:
+      positions[0].append(float(row[0]))
+      positions[1].append(float(row[1]))
+      positions[2].append(float(row[2]))
+  
+  return positions
 
 def filter_data(positions):
   """
@@ -113,9 +133,16 @@ def filter_data(positions):
   y = positions[1]
   z = positions[2]
 
+  new_positions = [[], [], []]
+  for point in range(len(y)):
+    if float(y[point]) < 60:
+        new_positions[0].append(float(x[point]))
+        new_positions[1].append(float(y[point]))
+        new_positions[2].append(float(z[point]))
   
+  return new_positions
 
-def plot_heatmap(positions, radii):
+def plot_heatmap(positions):
   """
   TODO:
   """
