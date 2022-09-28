@@ -70,7 +70,7 @@ def fetch_data(serial_port, get_data, params):
     sensor_volt = np.array(sensor_volt)
 
     positions, radii = angle_to_coordinates(sensor_volt, position_degrees, params)
-    return (sensor_volt, positions, radii)
+    return (sensor_volt, positions, position_degrees, radii)
 
 def angle_to_coordinates(sensor_volt, position_degrees, params):
     """
@@ -129,6 +129,15 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
 
     f.close()
     return np.array(positions), radii
+
+def plot_single_sweep(position_degrees, ):
+    """
+    TODO:
+    """
+    pan_degrees = np.array(position_degrees[0])
+    pan_degrees -= 30 # phi
+
+
 
 def plot_heatmap(positions):
     """

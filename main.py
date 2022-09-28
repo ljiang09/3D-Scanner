@@ -17,7 +17,8 @@ SERIAL_PORT = serial.Serial(ARDUINO_COM_PORT, BAUD_RATE, timeout=10)
 PARAMS = calibrate.run_calibration()
 
 # Fetch data until STOP command given
-SENSOR_VOLT, POSITIONS, RADII = prd.fetch_data(SERIAL_PORT, get_data=True, params=PARAMS)
+SENSOR_VOLT, POSITIONS,POSITIONS_DEGREES, RADII = \
+    prd.fetch_data(SERIAL_PORT, get_data=True, params=PARAMS)
 
 # Generate image of scanned object
 prd.plot_heatmap(POSITIONS, RADII)
