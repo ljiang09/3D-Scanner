@@ -26,9 +26,9 @@ const int servo2Increment = 1;
 
 // range of motion for each servo
 const int servo1Start = 0;
-const int servo1End = 25; //25
-const int servo2Start = 10; // 10
-const int servo2End = 50; //50
+const int servo1End = 20; //25
+const int servo2Start = 15; // 10
+const int servo2End = 45; //50
 
 
 // set up servos and communications

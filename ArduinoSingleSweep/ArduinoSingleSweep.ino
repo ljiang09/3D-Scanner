@@ -49,6 +49,6 @@ void loop() {
       }
       // print distance and angle values to the serial monitor for python parsing
       Serial.println(String(sensorAvg/10) + "," + String(pos2) + "," + String(pos1));
-    
   }
+  Serial.println("STOP");
 }

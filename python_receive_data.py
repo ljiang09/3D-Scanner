@@ -96,8 +96,11 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
     radii = calibrate.inv_exponential(sensor_volt, *params)
 
     # Center the angles so that these degrees are not set to 0
-    pan_degrees -= 30 # phi
+    pan_degrees = 30 - pan_degrees # phi
     tilt_degrees -= 10 # theta
+
+    print(pan_degrees)
+    print(tilt_degrees)
 
     positions = [[], [], []]
 
@@ -121,6 +124,9 @@ def angle_to_coordinates(sensor_volt, position_degrees, params):
         positions[2].append(z)
 
         writer.writerow([x, y, z, radii[index]])
+        print(x)
+        print(y)
+        print(z)
 
     f.close()
     return np.array(positions), radii
