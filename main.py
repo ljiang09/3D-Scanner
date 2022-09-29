@@ -22,10 +22,7 @@ PARAMS = calibrate.run_calibration()
 SENSOR_VOLT, POSITIONS, POSITIONS_DEGREES, RADII = \
     prd.fetch_data(SERIAL_PORT, get_data=True, params=PARAMS)
 
-# Generate image of scanned object. 
-print(POSITIONS)
-
-# Uncomment to generate scatterplot in XYZ dimensions
+# Generate scatterplot in XYZ dimensions
 prd.plot_heatmap(POSITIONS)
 
 # Uncomment to generate pan-angle vs radii plot (1d)

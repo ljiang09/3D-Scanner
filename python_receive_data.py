@@ -142,11 +142,11 @@ def plot_single_sweep(position_degrees, sensor_volt, params):
         params: A float array representing the coefficients and transformations that define the
             sensor's calibration curve.
     """
-    pan_degrees = np.array(position_degrees[0])
-    pan_degrees -= 30 # Center pan degrees at 0
+    pan_degrees = np.array(position_degrees[0][2:])
+    pan_degrees = 30 - pan_degrees # Center pan degrees at 0
 
     # Convert sensor data to distances
-    radii = calibrate.inv_exponential(sensor_volt, *params)
+    radii = calibrate.inv_exponential(sensor_volt, *params)[2:]
 
     # Plot data
     plt.plot(pan_degrees, radii)
